@@ -23,9 +23,12 @@ public:
 		player->ADD_GOSSIP_ITEM(10, "|TInterface\\icons\\Spell_Shadow_DeathScream:40:40:-18|t Remove Sickness", GOSSIP_SENDER_MAIN, 5);				// Remove Sickness
 		player->ADD_GOSSIP_ITEM(10, "|TInterface\\icons\\INV_Hammer_24:40:40:-18|t Repair Items", GOSSIP_SENDER_MAIN, 6);							// Repair Items
 		player->ADD_GOSSIP_ITEM(10, "|TInterface\\icons\\Achievement_WorldEvent_Lunar:40:40:-18|t Reset Talents", GOSSIP_SENDER_MAIN, 7);			// Reset Talents
-		//player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/INV_Misc_Bag_07:40:40:-18|t Bank", GOSSIP_SENDER_MAIN, 8);                                   // Open Bank
-		//player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/INV_Letter_11:40:40:-18|t Mail", GOSSIP_SENDER_MAIN, 9);                                     // Open Mailbox
-        player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/achievement_general:40:40:-18|t Learn Dual Talents", GOSSIP_SENDER_MAIN, 10);                                     // Learn Dualspec
+		//player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/INV_Misc_Bag_07:40:40:-18|t Bank", GOSSIP_SENDER_MAIN, 8);                                 // Open Bank
+		//player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/INV_Letter_11:40:40:-18|t Mail", GOSSIP_SENDER_MAIN, 9);                                   // Open Mailbox
+        player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/achievement_general:40:40:-18|t Learn Dual Talents", GOSSIP_SENDER_MAIN, 10);                // Learn Dualspec
+		player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/INV_Hammer_24:40:40:-18|t Change your faction for 5000 gold", GOSSIP_SENDER_MAIN, 11);                // Change Faction
+		player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/INV_Hammer_24:40:40:-18|t Change your race for 5000 gold", GOSSIP_SENDER_MAIN, 12);                // Change Race
+		player->ADD_GOSSIP_ITEM(10, "|TInterface/Icons/INV_Hammer_24:40:40:-18|t Customize character for 5000 gold", GOSSIP_SENDER_MAIN, 13);                // Customize
 		player->SEND_GOSSIP_MENU(1, creature->GetGUID());
         return true;
 		}
@@ -134,21 +137,71 @@ public:
 					player->CLOSE_GOSSIP_MENU();
 					if (player->IsInCombat())
 					{
-					player->CLOSE_GOSSIP_MENU();
-					player->GetSession()->SendNotification("You are in combat!");
-					return false;
+						player->CLOSE_GOSSIP_MENU();
+						player->GetSession()->SendNotification("You are in combat!");
+						return false;
 					}
-
-									player->learnSpell(63644);
-									player->CastSpell(player, 31726);
-									player->CastSpell(player, 63624);
-									player->learnSpell(63645);
-									player->UpdateSpecCount(2);
-									player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFDual Talents Learned Succesfully!");
+					player->learnSpell(63644);
+					player->CastSpell(player, 31726);
+					player->CastSpell(player, 63624);
+					player->learnSpell(63645);
+					player->UpdateSpecCount(2);
+					player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFDual Talents Learned Succesfully!");
 					return true;
 					break;
 
-				 }
+			case 11: // Customize Faction
+					player->CLOSE_GOSSIP_MENU();
+					if (!player->HasEnoughMoney(50000000))
+					{
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFYou don't have enough gold to do that.");
+					}
+					else if (player->HasAtLoginFlag(AT_LOGIN_CHANGE_FACTION) || player->HasAtLoginFlag(AT_LOGIN_CHANGE_RACE) || player->HasAtLoginFlag(AT_LOGIN_CUSTOMIZE))
+					{
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFCharacter is already flagged for change.");
+					}
+					else
+					{
+						player->ModifyMoney(-50000000);
+						player->SetAtLoginFlag(AT_LOGIN_CHANGE_FACTION);
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFRelog to change faction of your character!");
+					}										
+					break;
+			case 12: // Change Race
+					player->CLOSE_GOSSIP_MENU();
+					if (!player->HasEnoughMoney(50000000))
+					{
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFYou don't have enough gold to do that.");
+					}
+					else if (player->HasAtLoginFlag(AT_LOGIN_CHANGE_FACTION) || player->HasAtLoginFlag(AT_LOGIN_CHANGE_RACE) || player->HasAtLoginFlag(AT_LOGIN_CUSTOMIZE))
+					{
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFCharacter is already flagged for change.");
+					}
+					else
+					{
+						player->ModifyMoney(-50000000);
+						player->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFRelog to change race of your character!");
+					}										
+					break;
+			case 13: // Change Name
+					player->CLOSE_GOSSIP_MENU();
+					if (!player->HasEnoughMoney(50000000))
+					{						
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFYou don't have enough gold to do that.");
+					}
+					else if (player->HasAtLoginFlag(AT_LOGIN_CHANGE_FACTION) || player->HasAtLoginFlag(AT_LOGIN_CHANGE_RACE) || player->HasAtLoginFlag(AT_LOGIN_CUSTOMIZE))
+					{
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFCharacter is already flagged for change.");
+					}
+					else
+					{
+						player->ModifyMoney(-50000000);
+						player->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
+						player->GetSession()->SendNotification("|cffFFFF00NPC SERVICES \n |cffFFFFFFRelog to customize your character!");
+					}						
+					break;
+			}
                  return true;
         }			
 		
